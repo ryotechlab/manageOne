@@ -2,7 +2,7 @@ const express = require('express');
 const { route } = require('./device');
 const router = express.Router();
 
-//仮のデータを格納(本来はDB使用)[
+//仮のデータを格納(本来はDB使用)
 const  borrowRecords = [];
 
 router.post('/',(req,res) => {

@@ -6,6 +6,7 @@ const app = express();
 
 const deviceRoutes = require('./routes/device');
 const borrowRoutes = require('./routes/borrow');
+const returnRoutes = require('./routes/return');
 
 app.use(cors());
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use(express.json());
 //デバイスAPIのルーティング(マウント)
 app.use('/api/device', deviceRoutes);
 app.use('/api/borrow', borrowRoutes);
+app.use('/api/return', returnRoutes);
 
 //サーバー開設
 const PORT = process.env.PORT || 3000;
