@@ -13,19 +13,4 @@ router.get('/',(req,res) => {
   res.json(device);
 });
 
-//POST- 貸出
-// router.post('/borrow',(req,res) => {
-//   const { deviceName, userName, date} = req.body;
-//   res.json({
-//     massage:'貸出リクエストを受け付けました',
-//     data:{ deviceName, userName, date}
-//   });
-// });
-
-// //DELETE - 返却(例)
-// router.delete('/return/:deviceName',(req,res) => {
-//   const { deviceName } = req.params;
-//   res.json({message:`${deviceName}を返却しました(ダミー)`});
-// });
-
 module.exports = router;
