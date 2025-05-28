@@ -1,10 +1,29 @@
 const express = require('express');
-const { route } = require('./device');
+const fs = require('fs');
+const path = require('path');
+
 const router = express.Router();
 
-//仮のデータを格納(本来はDB使用)
-const  borrowRecords = [];
+const dataFilePath = path.join(__dirname,'..','..','db','borrow.json');
 
+//ファイルからデータを読み込む関数
+function readData(){
+  const raw = fs.readFileSync(dataFilePath, 'utf-8');
+  return JSON.parse(raw);
+}
+
+//データをファイルに保存する関数
+function writeData(data){
+  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+}
+
+//一覧取得
+router.get('/',(req,res) => {
+  const borrowData = readData();
+  res.json(borrowData);
+});
+
+//貸出登録
 router.post('/',(req,res) => {
   const { deviceName, userName, date} = req.body;
 
@@ -12,17 +31,34 @@ router.post('/',(req,res) => {
     return res.status(400).json({ massage: '全ての項目を入力して下さい' });
   }
 
-  //レコードに追加
-  const record = {
-    id: borrowRecords.length + 1,
+  const borrowData = readData();
+
+  const newEntry = {
+    id: Date.now(),
     deviceName,
     userName,
-    date,
+    date
   };
-  borrowRecords.push(record);
 
-  console.log('貸出記録：', record);
-  res.status(201).json({ message: '貸出処理が完了しました', record });
+  borrowData.push(newEntry);
+  writeData(borrowData);
+
+  res.status(201).json(newEntry);
+});
+
+//削除(DELETE)
+router.delete('/:id',(req,res) => {
+  const borrowData = readData();
+  const idToDelete = parseInt(req.params.id, 10);
+  const updateData = borrowData.filter(entry => entry.id != idToDelete);
+
+  if(borrowData.length === updateData.length){
+    return res.status(404).json({ message: '対象のIDが見つかりません' });
+  }
+
+  writeData(updateData);
+  res.status(200).json({ message: '削除しました' });
+
 });
 
 module.exports = router;
