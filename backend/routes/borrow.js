@@ -28,7 +28,7 @@ router.post('/',(req,res) => {
   const { deviceName, userName, date} = req.body;
 
   if(!deviceName || !userName || !date){
-    return res.status(400).json({ massage: '全ての項目を入力して下さい' });
+    return res.status(400).json({ message: '全ての項目を入力して下さい' });
   }
 
   const borrowData = readData();
@@ -50,6 +50,7 @@ router.post('/',(req,res) => {
 router.delete('/:id',(req,res) => {
   const borrowData = readData();
   const idToDelete = parseInt(req.params.id, 10);
+  
   const updateData = borrowData.filter(entry => entry.id != idToDelete);
 
   if(borrowData.length === updateData.length){
