@@ -1,3 +1,17 @@
+//入力バリデーションを関数に切り出し
+function validateInput({ deviceName, userName, date }){
+  if(!deviceName || !userName || !date){
+    return '全ての項目を入力して下さい';
+  }
+
+  //追加のチェックが有ればここに書ける
+  if(deviceName.length > 50){
+    return '機器名は50文字以内にして下さい';
+  }
+
+  return null;//エラーなし
+}
+
 document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   e.preventDefault();//デフォルトの送信処理(HTML)をキャンセル
   
@@ -7,8 +21,9 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   const date = document.getElementById('date').value;
 
   //2.フロント側でのバリデーションチェック
-  if(!deviceName || !userName || !date){
-    alert('全ての項目を入力して下さい');
+  const errMessage = validateInput({ deviceName, userName, date });
+  if(errMessage){
+    alert(errMessage);
     return;
   }
 
