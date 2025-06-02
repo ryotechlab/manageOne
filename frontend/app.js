@@ -85,15 +85,28 @@ async function fetchBorrowList(){
 
     borrowList.innerHTML = '';
 
-    data.forEach((item, index) => {
+    data.forEach(item => {
       const row = document.createElement('tr');
 
-      row.innerHTML = `
-        <td>${item.deviceName}</td>
-        <td>${item.userName}</td>
-        <td>${item.date}</td>
-        <td><button onclick="deleteBorrow(${index})">削除</button></td>
-      `;
+      const deviceNameCell = document.createElement('td');
+      deviceNameCell.textContent = item.deviceName;
+
+      const userNameCell = document.createElement('td');
+      userNameCell.textContent = item.userName;
+
+      const dateCell = document.createElement('td');
+      dateCell.textContent = item.date;
+
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('Button');
+      deleteButton.textContent = '削除';
+      deleteButton.addEventListener('click', () => deleteBorrow(item.id));
+      deleteCell.appendChild(deleteButton);
+
+      row.appendChild(deviceNameCell);
+      row.appendChild(userNameCell);
+      row.appendChild(dateCell);
+      row.appendChild(deleteCell);
 
       borrowList.appendChild(row);
     });
@@ -105,11 +118,11 @@ async function fetchBorrowList(){
 }
 
 //削除
-async function deleteBorrow(index){
+async function deleteBorrow(id){
   if(!confirm('このデータを削除してもよろしいですか？')) return;
 
   try{
-    const res = await fetch(`/api/borrow/${index}`, {
+    const res = await fetch(`/api/borrow/${id}`, {
       method: 'DELETE'
     });
 
@@ -121,7 +134,7 @@ async function deleteBorrow(index){
 
     const result = await res.json();
     showMessage(result.message, 'success');
-    fetchBorrowList();//再取得
+    fetchBorrowList();//削除後に再取得
 
   }catch(err){
     console.error('削除エラー:', err);
