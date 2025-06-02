@@ -43,7 +43,7 @@ router.post('/',(req,res) => {
   borrowData.push(newEntry);
   writeData(borrowData);
 
-  res.status(201).json(newEntry);
+  res.status(201).json({ message: '登録完了'});
 });
 
 //削除(DELETE)

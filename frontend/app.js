@@ -12,8 +12,23 @@ function validateInput({ deviceName, userName, date }){
   return null;//エラーなし
 }
 
+const messageDiv = document.getElementById('message');
+
+//メッセージ表示関数
+function showMessage(text, type){
+  messageDiv.textContent = text;
+  messageDiv.style.color = type === 'error' ? 'red' : 'green';
+}
+
+//メッセージクリア関数
+function clearMessage(){
+  messageDiv.textContent = '';
+}
+
 document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   e.preventDefault();//デフォルトの送信処理(HTML)をキャンセル
+
+  clearMessage();//前のメッセージをクリア
   
   //1,入力値の取得
   const deviceName = document.getElementById('deviceName').value.trim();
@@ -23,7 +38,7 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   //2.フロント側でのバリデーションチェック
   const errMessage = validateInput({ deviceName, userName, date });
   if(errMessage){
-    alert(errMessage);
+    showMessage(errMessage, 'error');
     return;
   }
 
@@ -41,20 +56,19 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
     if(!res.ok){
       //サーバーエラーの場合
       const errorData = await res.json();
-      alert(`サーバーエラー：${errorData.message || '不明なエラー'}`);
+      showMessage(`サーバーエラー：${errorData.message || '不明なエラー'}`, 'error');
       return;
     }
 
     //成功レスポンスを処理
     const result = await res.json();
-    alert(`成功：${result.message}`);
-
+    showMessage(`成功：${result.message}`, 'success');
     //フォームを初期化
     document.getElementById('borrowForm').reset();
 
   }catch{
     //通信そのものが失敗した場合(ネットワークエラーなど)
     console.log('通信エラー：', err);
-    alert('通信エラーが発生しました。ネットワークを確認して下さい');
+    showMessage('通信エラーが発生しました。ネットワークを確認して下さい', 'error');
   }
 });
