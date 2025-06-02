@@ -25,6 +25,7 @@ function clearMessage(){
   messageDiv.textContent = '';
 }
 
+//貸出登録
 document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   e.preventDefault();//デフォルトの送信処理(HTML)をキャンセル
 
@@ -65,10 +66,68 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
     showMessage(`成功：${result.message}`, 'success');
     //フォームを初期化
     document.getElementById('borrowForm').reset();
+    fetchBorrowList();//成功時に再取得
 
-  }catch{
+  }catch(err){
     //通信そのものが失敗した場合(ネットワークエラーなど)
     console.log('通信エラー：', err);
     showMessage('通信エラーが発生しました。ネットワークを確認して下さい', 'error');
   }
 });
+
+const borrowList = document.getElementById('borrowList');
+
+//一覧取得
+async function fetchBorrowList(){
+  try{
+    const res = await fetch('/api/borrow');
+    const data = await res.json();
+
+    borrowList.innerHTML = '';
+
+    data.forEach((item, index) => {
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td>${item.deviceName}</td>
+        <td>${item.userName}</td>
+        <td>${item.date}</td>
+        <td><button onclick="deleteBorrow(${index})">削除</button></td>
+      `;
+
+      borrowList.appendChild(row);
+    });
+
+  }catch(err){
+    console.error('一覧取得失敗', err);
+    showMessage('貸出一覧の取得に失敗しました', 'error');
+  }
+}
+
+//削除
+async function deleteBorrow(index){
+  if(!confirm('このデータを削除してもよろしいですか？')) return;
+
+  try{
+    const res = await fetch(`/api/borrow/${index}`, {
+      method: 'DELETE'
+    });
+
+    if(!res.ok){
+      const errorData = await res.json();
+      showMessage(`削除エラー: ${errorData.message || '不明なエラー'}`, 'error');
+      return;
+    }
+
+    const result = await res.json();
+    showMessage(result.message, 'success');
+    fetchBorrowList();//再取得
+
+  }catch(err){
+    console.error('削除エラー:', err);
+    showMessage('s削除に失敗しました', 'error');
+  }
+}
+
+//ページ読込時に一覧を取得
+window.addEventListener('DOMContentLoaded', fetchBorrowList);
