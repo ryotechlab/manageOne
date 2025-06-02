@@ -1,11 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>manageOne</title>
 </head>
 <body>
-  
+  <h1>貸出フォーム</h1>
+  <form id="borrowForm">
+    <input type="text" id="deviceName" placeholder="機器名" required>
+    <input type="text" id="userName" placeholder="貸出者" required>
+    <input type="date" id="date" required>
+    <button type="submit">送信</button>
+  </form>
+
+  <script src="app.js"></script>
 </body>
 </html>

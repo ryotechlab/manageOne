@@ -2,7 +2,10 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path  =require('path');
 const app = express();
+
+const frontFilePath = path.join(__dirname,'..','frontend');
 
 const deviceRoutes = require('./routes/device');
 const borrowRoutes = require('./routes/borrow');
@@ -10,6 +13,7 @@ const returnRoutes = require('./routes/return');
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(frontFilePath));
 
 //デバイスAPIのルーティング(マウント)
 app.use('/api/device', deviceRoutes);
