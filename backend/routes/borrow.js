@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { db, getAllBorrows, deleteBorrow} = require('../../db/database');
+const { db, getAllBorrows, postBorrows, deleteBorrow} = require('../../db/database');
 
 const router = express.Router();
 
@@ -35,12 +35,12 @@ router.post('/',(req,res) => {
     return res.status(400).json({ message: '全ての項目を入力して下さい' });
   }
 
-  const sql = 'INSERT INTO borrow (device_name, user_name, date) VALUES (?, ?, ?)';
-  db.run(sql, [deviceName, userName, date], function(err){
-    if(err){
-      return res.status(500).json({ error: 'データベースへの登録に失敗しました' });
+  postBorrows(deviceName, userName, date, (err, result) => {
+    if (err) {
+      return res.status(err.status).json({ error: err.message });
     }
-    res.status(201).json({ message: '登録成功', id: this.lastID });
+    
+    res.status(201).json({ id: result.id });
   });
 });
 

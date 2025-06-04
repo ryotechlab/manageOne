@@ -14,8 +14,44 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 //一覧取得
 function getAllBorrows(callback){
-  db.all('SELECT * FROM borrow', [], (err, rows) => {
+  const sql = `
+   SELECT 
+      borrowings.id, 
+      users.name AS userName, 
+      devices.name AS deviceName, 
+      borrowings.date 
+    FROM borrowings 
+    JOIN users ON borrowings.user_id = users.id 
+    JOIN devices ON borrowings.device_id = devices.id
+  `;
+  db.all(sql, [], (err, rows) => {
     callback(err, rows);
+  });
+}
+
+//貸出登録
+function postBorrows(deviceName, userName, date, callback){
+  const getUserId = `SELECT id FROM users WHERE name = ?`;
+  const getDeviceId = `SELECT id FROM devices WHERE name = ?`;
+
+  db.get(getUserId, [userName], (err, user) => {
+    if (err || !user) {
+      return callback({ status: 400, message: 'ユーザーが見つかりません' });
+    }
+
+    db.get(getDeviceId, [deviceName], (err, device) => {
+      if (err || !device) {
+        return callback({ status: 400, message: '機器が見つかりません' });
+      }
+
+      const insertSql = 'INSERT INTO borrowings (user_id, device_id, date) VALUES (?, ?, ?)';
+      db.run(insertSql, [user.id, device.id, date], function (err) {
+        if (err) {
+          return callback({ status: 500, message: 'データベースへの登録に失敗しました' });
+        }
+        callback(null, { id: this.lastID });
+      });
+    });
   });
 }
 
@@ -29,5 +65,6 @@ function deleteBorrow(id, callback){
 module.exports = {
   db,
   getAllBorrows,
+  postBorrows,
   deleteBorrow,
 };

@@ -89,10 +89,10 @@ async function fetchBorrowList(){
       const row = document.createElement('tr');
 
       const deviceNameCell = document.createElement('td');
-      deviceNameCell.textContent = item.device_name;
+      deviceNameCell.textContent = item.deviceName;
 
       const userNameCell = document.createElement('td');
-      userNameCell.textContent = item.user_name;
+      userNameCell.textContent = item.userName;
 
       const dateCell = document.createElement('td');
       dateCell.textContent = item.date;
