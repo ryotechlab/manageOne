@@ -1,10 +1,9 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { db, getAllBorrows, deleteBorrow} = require('../../db/database');
 
 const router = express.Router();
-
-const dataFilePath = path.join(__dirname,'..','..','db','borrow.json');
 
 //ファイルからデータを読み込む関数
 function readData(){
@@ -19,8 +18,13 @@ function writeData(data){
 
 //一覧取得
 router.get('/',(req,res) => {
-  const borrowData = readData();
-  res.json(borrowData);
+  getAllBorrows((err, rows) => {
+    if(err){
+      res.status(500).json({ err: 'データベースエラー' });
+    }else{
+      res.status(200).json(rows);
+    }
+  });
 });
 
 //貸出登録
@@ -31,35 +35,27 @@ router.post('/',(req,res) => {
     return res.status(400).json({ message: '全ての項目を入力して下さい' });
   }
 
-  const borrowData = readData();
-
-  const newEntry = {
-    id: Date.now(),
-    deviceName,
-    userName,
-    date
-  };
-
-  borrowData.push(newEntry);
-  writeData(borrowData);
-
-  res.status(201).json({ message: '登録完了'});
+  const sql = 'INSERT INTO borrow (device_name, user_name, date) VALUES (?, ?, ?)';
+  db.run(sql, [deviceName, userName, date], function(err){
+    if(err){
+      return res.status(500).json({ error: 'データベースへの登録に失敗しました' });
+    }
+    res.status(201).json({ message: '登録成功', id: this.lastID });
+  });
 });
 
 //削除(DELETE)
 router.delete('/:id',(req,res) => {
-  const borrowData = readData();
-  const idToDelete = parseInt(req.params.id, 10);
-  
-  const updateData = borrowData.filter(entry => entry.id != idToDelete);
-
-  if(borrowData.length === updateData.length){
-    return res.status(404).json({ message: '対象のIDが見つかりません' });
-  }
-
-  writeData(updateData);
-  res.status(200).json({ message: '削除しました' });
-
+  const id = req.params.id;
+  deleteBorrow(id, (err,changes) => {
+    if(err){
+      res.status(500).json({ err: '削除に失敗しました' });
+    }else if(changes === 0){
+      res.status(404).json({ message: '指定されたIDのデータが見つかりませんでした' });
+    }else{
+      res.status(201).json({ message: '削除に成功しました' });
+    }
+  });
 });
 
 module.exports = router;
