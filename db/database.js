@@ -57,8 +57,14 @@ function postBorrows(deviceName, userName, date, callback){
 
 //削除
 function deleteBorrow(id, callback){
-  db.run('DELETE FROM borrow WHERE id = ?', [id], function (err){
-    callback(err, this.changes);//changes:削除件数(0または1)
+  const sql = 'DELETE FROM borrowings WHERE id = ?';
+  db.run(sql, [id], function (err){
+    if(err){
+      return callback({ status: 500, massage: '削除に失敗しました' });
+    }else if(this.changes === 0){
+      return callback({ status: 404, massage: 'データが見つかりません' });
+    }
+    callback(null);
   });
 }
 

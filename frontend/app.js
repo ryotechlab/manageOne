@@ -138,7 +138,7 @@ async function deleteBorrow(id){
 
   }catch(err){
     console.error('削除エラー:', err);
-    showMessage('s削除に失敗しました', 'error');
+    showMessage('削除に失敗しました', 'error');
   }
 }
 

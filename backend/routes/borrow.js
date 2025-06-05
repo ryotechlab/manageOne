@@ -5,17 +5,6 @@ const { db, getAllBorrows, postBorrows, deleteBorrow} = require('../../db/databa
 
 const router = express.Router();
 
-//ファイルからデータを読み込む関数
-function readData(){
-  const raw = fs.readFileSync(dataFilePath, 'utf-8');
-  return JSON.parse(raw);
-}
-
-//データをファイルに保存する関数
-function writeData(data){
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-}
-
 //一覧取得
 router.get('/',(req,res) => {
   getAllBorrows((err, rows) => {
@@ -47,14 +36,11 @@ router.post('/',(req,res) => {
 //削除(DELETE)
 router.delete('/:id',(req,res) => {
   const id = req.params.id;
-  deleteBorrow(id, (err,changes) => {
+  deleteBorrow(id, (err) => {
     if(err){
-      res.status(500).json({ err: '削除に失敗しました' });
-    }else if(changes === 0){
-      res.status(404).json({ message: '指定されたIDのデータが見つかりませんでした' });
-    }else{
-      res.status(201).json({ message: '削除に成功しました' });
+      return res.status(err.status).json({ err: err.massage });
     }
+    res.status(200).json({ message: '削除に成功しました' });
   });
 });
 

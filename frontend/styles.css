@@ -1,3 +1,7 @@
+body {
+  background-color: bisque;
+}
+
 #message {
   font-weight: bold;
   padding: 8px;
