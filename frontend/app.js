@@ -1,14 +1,18 @@
+//ページ読込時に一覧を取得
+window.addEventListener('DOMContentLoaded', () => {
+  fetchBorrowList();
+  loadMasterData();
+});
+
 //入力バリデーションを関数に切り出し
 function validateInput({ deviceName, userName, date }){
   if(!deviceName || !userName || !date){
     return '全ての項目を入力して下さい';
   }
-
   //追加のチェックが有ればここに書ける
   if(deviceName.length > 50){
     return '機器名は50文字以内にして下さい';
   }
-
   return null;//エラーなし
 }
 
@@ -25,6 +29,28 @@ function clearMessage(){
   messageDiv.textContent = '';
 }
 
+//ユーザー、機器をドロップダウンへ表示関数
+async function loadMasterData() {
+  const [usersRes, devicesRes] = await Promise.all([
+    fetch('/api/user'),
+    fetch('/api/device')
+  ]);
+
+  const users = await usersRes.json();
+  const devices = await devicesRes.json();
+
+  const userSel = document.getElementById('userSelect');
+  const deviceSel = document.getElementById('deviceSelect');
+
+  userSel.add(new Option('ユーザーを選択して下さい','',true,true));
+  userSel.options[0].disabled = true;
+  deviceSel.add(new Option('機器を選択して下さい','',true,true));
+  deviceSel.options[0].disabled = true;
+
+  users.forEach(u => userSel.add(new Option(u.name, u.name)));
+  devices.forEach(d => deviceSel.add(new Option(d.name, d.name)));
+}
+
 //貸出登録
 document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   e.preventDefault();//デフォルトの送信処理(HTML)をキャンセル
@@ -32,8 +58,8 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
   clearMessage();//前のメッセージをクリア
   
   //1,入力値の取得
-  const deviceName = document.getElementById('deviceName').value.trim();
-  const userName = document.getElementById('userName').value.trim();
+  const deviceName = document.getElementById('deviceSelect').value.trim();
+  const userName = document.getElementById('userSelect').value.trim();
   const date = document.getElementById('date').value;
 
   //2.フロント側でのバリデーションチェック
@@ -141,6 +167,3 @@ async function deleteBorrow(id){
     showMessage('削除に失敗しました', 'error');
   }
 }
-
-//ページ読込時に一覧を取得
-window.addEventListener('DOMContentLoaded', fetchBorrowList);

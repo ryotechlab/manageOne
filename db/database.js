@@ -12,7 +12,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-//一覧取得
+//貸出一覧取得
 function getAllBorrows(callback){
   const sql = `
    SELECT 
@@ -29,7 +29,7 @@ function getAllBorrows(callback){
   });
 }
 
-//貸出登録
+//貸出登録(名前→ID(外部キー)変換含む)
 function postBorrows(deviceName, userName, date, callback){
   const getUserId = `SELECT id FROM users WHERE name = ?`;
   const getDeviceId = `SELECT id FROM devices WHERE name = ?`;
@@ -55,7 +55,7 @@ function postBorrows(deviceName, userName, date, callback){
   });
 }
 
-//削除
+//貸出削除
 function deleteBorrow(id, callback){
   const sql = 'DELETE FROM borrowings WHERE id = ?';
   db.run(sql, [id], function (err){
@@ -68,9 +68,27 @@ function deleteBorrow(id, callback){
   });
 }
 
+//ユーザー一覧取得
+function getAllUsers(callback){
+  const sql = 'SELECT id, name FROM users';
+  db.all(sql, [], (err,rows) => {
+    callback(err, rows);
+  });
+}
+
+//機器一覧取得
+function getAllDevices(callback){
+  const sql = 'SELECT id, name FROM devices';
+  db.all(sql, [], (err,rows) => {
+    callback(err,rows);
+  });
+}
+
 module.exports = {
   db,
   getAllBorrows,
   postBorrows,
   deleteBorrow,
+  getAllUsers,
+  getAllDevices,
 };

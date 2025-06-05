@@ -9,10 +9,14 @@
 <body>
   <h1>貸出フォーム</h1>
   <form id="borrowForm">
-    <input type="text" id="deviceName" placeholder="機器名" required>
-    <input type="text" id="userName" placeholder="貸出者" required>
+    <label>ユーザー:
+      <select id="userSelect"></select>
+    </label>
+    <label>機器:
+      <select id="deviceSelect"></select>
+    </label>
     <input type="date" id="date" required>
-    <button type="submit">送信</button>
+    <button type="submit">登録</button>
   </form>
 
   <div id="message"></div>

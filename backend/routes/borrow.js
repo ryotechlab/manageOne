@@ -5,6 +5,9 @@ const { db, getAllBorrows, postBorrows, deleteBorrow} = require('../../db/databa
 
 const router = express.Router();
 
+//空・スペースのみを検査
+const isEmpty = value => typeof value !== 'string' || value.trim() === '';
+
 //一覧取得
 router.get('/',(req,res) => {
   getAllBorrows((err, rows) => {
@@ -20,8 +23,8 @@ router.get('/',(req,res) => {
 router.post('/',(req,res) => {
   const { deviceName, userName, date} = req.body;
 
-  if(!deviceName || !userName || !date){
-    return res.status(400).json({ message: '全ての項目を入力して下さい' });
+  if([deviceName, userName, date].some(isEmpty)){
+    return res.status(400).json({ message: '全ての項目を正しく選択・入力して下さい' });
   }
 
   postBorrows(deviceName, userName, date, (err, result) => {
