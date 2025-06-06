@@ -21,8 +21,9 @@ function getAllBorrows(callback){
       devices.name AS deviceName, 
       borrowings.date 
     FROM borrowings 
-    JOIN users ON borrowings.user_id = users.id 
-    JOIN devices ON borrowings.device_id = devices.id
+    LEFT JOIN users ON borrowings.user_id = users.id 
+    LEFT JOIN devices ON borrowings.device_id = devices.id
+    ORDER BY borrowings.id DESC
   `;
   db.all(sql, [], (err, rows) => {
     callback(err, rows);
@@ -76,11 +77,33 @@ function getAllUsers(callback){
   });
 }
 
+//ユーザー登録
+function postUsers(userName, callback){
+  const sql = 'INSERT INTO users (name) VALUES (?)';
+  db.run(sql, [userName], function (err){
+    if(err){
+      return callback({ status: 500, message: '登録に失敗しました' });
+    }
+    callback(null, { status: 201, id: this.lastID, name: userName });
+  });
+}
+
 //機器一覧取得
 function getAllDevices(callback){
   const sql = 'SELECT id, name FROM devices';
   db.all(sql, [], (err,rows) => {
     callback(err,rows);
+  });
+}
+
+//機器登録
+function postDevices(deviceName, callback){
+  const sql = 'INSERT INTO devices (name) VALUES (?)';
+  db.run(sql, [deviceName], function (err){
+    if(err){
+      return callback({ status: 500, message: '登録に失敗しました' });
+    }
+    callback(null, { status: 201, id: this.lastID, name: deviceName});
   });
 }
 
@@ -90,5 +113,7 @@ module.exports = {
   postBorrows,
   deleteBorrow,
   getAllUsers,
+  postUsers,
   getAllDevices,
+  postDevices,
 };

@@ -1,10 +1,5 @@
-//ページ読込時に一覧を取得
-window.addEventListener('DOMContentLoaded', () => {
-  fetchBorrowList();
-  loadMasterData();
-});
-
 //入力バリデーションを関数に切り出し
+const isEmpty = value => value === null || typeof value !== 'string' || value.trim() === '';
 function validateInput({ deviceName, userName, date }){
   if(!deviceName || !userName || !date){
     return '全ての項目を入力して下さい';
@@ -41,6 +36,9 @@ async function loadMasterData() {
 
   const userSel = document.getElementById('userSelect');
   const deviceSel = document.getElementById('deviceSelect');
+
+  userSel.innerHTML = '';
+  deviceSel.innerHTML = '';
 
   userSel.add(new Option('ユーザーを選択して下さい','',true,true));
   userSel.options[0].disabled = true;
@@ -79,16 +77,16 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
     body: JSON.stringify({deviceName, userName, date })
     });
 
+    const result = await res.json();
+
     //4.ステータスコードのチェック
     if(!res.ok){
       //サーバーエラーの場合
-      const errorData = await res.json();
-      showMessage(`サーバーエラー：${errorData.message || '不明なエラー'}`, 'error');
+      showMessage(`サーバーエラー：${result.message || '不明なエラー'}`, 'error');
       return;
     }
 
     //成功レスポンスを処理
-    const result = await res.json();
     showMessage(`成功：${result.message}`, 'success');
     //フォームを初期化
     document.getElementById('borrowForm').reset();
@@ -103,7 +101,7 @@ document.getElementById('borrowForm').addEventListener('submit',async (e) => {
 
 const borrowList = document.getElementById('borrowList');
 
-//一覧取得
+//貸出一覧取得
 async function fetchBorrowList(){
   try{
     const res = await fetch('/api/borrow');
@@ -143,7 +141,7 @@ async function fetchBorrowList(){
   }
 }
 
-//削除
+//貸出削除
 async function deleteBorrow(id){
   if(!confirm('このデータを削除してもよろしいですか？')) return;
 
@@ -152,13 +150,13 @@ async function deleteBorrow(id){
       method: 'DELETE'
     });
 
+    const result = await res.json();
+
     if(!res.ok){
-      const errorData = await res.json();
-      showMessage(`削除エラー: ${errorData.message || '不明なエラー'}`, 'error');
+      showMessage(`削除エラー: ${result.message || '不明なエラー'}`, 'error');
       return;
     }
 
-    const result = await res.json();
     showMessage(result.message, 'success');
     fetchBorrowList();//削除後に再取得
 
@@ -167,3 +165,57 @@ async function deleteBorrow(id){
     showMessage('削除に失敗しました', 'error');
   }
 }
+
+//ユーザー登録
+async function addUser(){
+  const newUserNameInput = document.getElementById('newUserName');
+  const name = newUserNameInput.value;
+  if(isEmpty(name)) return showMessage('ユーザー名を正しく入力して下さい', 'error');
+
+  const res = await fetch('/api/user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({name})
+  });
+
+  const result = await res.json();
+  if(!res.ok){
+    showMessage(`登録エラー:${result.message || 不明なエラー}`,'error');
+    return;
+  }
+
+  showMessage(`ユーザー登録に成功しました:${result.name}`,'success');
+  newUserNameInput.value = '';
+  loadMasterData();
+}
+document.getElementById('registerUser').addEventListener('click',addUser);
+
+//機器登録
+async function addDevice(){
+  const newDeviceNameInput = document.getElementById('newDeviceName');
+  const name = newDeviceNameInput.value;
+  if(isEmpty(name)) return showMessage('機器名を正しく入力して下さい', 'error');
+
+  const res = await fetch('/api/device', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({name})
+  });
+
+  const result = await res.json();
+  if(!res.ok){
+    showMessage(`登録エラー:${result.message || 不明なエラー}`, 'error');
+    return;
+  }
+
+  showMessage(`機器登録に成功しました:${result.name}`, 'success');
+  newDeviceNameInput.value = '';
+  loadMasterData();
+}
+document.getElementById('registerDevice').addEventListener('click',addDevice);
+
+//ページ読込時に一覧を取得
+window.addEventListener('DOMContentLoaded', () => {
+  fetchBorrowList();
+  loadMasterData();
+});
