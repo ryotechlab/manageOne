@@ -169,48 +169,74 @@ async function deleteBorrow(id){
 //ユーザー登録
 async function addUser(){
   const newUserNameInput = document.getElementById('newUserName');
+  const addUserButton = document.getElementById('registerUser');
   const name = newUserNameInput.value;
+
   if(isEmpty(name)) return showMessage('ユーザー名を正しく入力して下さい', 'error');
 
-  const res = await fetch('/api/user', {
+  addUserButton.disabled = true;
+  addUserButton.textContent = '登録中...';
+
+  try{
+    const res = await fetch('/api/user', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({name})
-  });
+    });
 
-  const result = await res.json();
-  if(!res.ok){
-    showMessage(`登録エラー:${result.message || 不明なエラー}`,'error');
-    return;
+    const result = await res.json();
+    if(!res.ok){
+      showMessage(`登録エラー:${result.message || 不明なエラー}`,'error');
+      return;
+    }
+
+    showMessage(`ユーザー登録に成功しました:${result.name}`,'success');
+    newUserNameInput.value = '';
+    loadMasterData();
+  }catch(err){
+    console.error('登録エラー:', err);
+    showMessage('ユーザー登録に失敗しました', 'error');
+  }finally{
+    addUserButton.disabled = false;
+    addUserButton.textContent = '登録';
   }
-
-  showMessage(`ユーザー登録に成功しました:${result.name}`,'success');
-  newUserNameInput.value = '';
-  loadMasterData();
 }
 document.getElementById('registerUser').addEventListener('click',addUser);
 
 //機器登録
 async function addDevice(){
   const newDeviceNameInput = document.getElementById('newDeviceName');
+  const addDeviceButton = document.getElementById('registerDevice');
   const name = newDeviceNameInput.value;
+
   if(isEmpty(name)) return showMessage('機器名を正しく入力して下さい', 'error');
 
-  const res = await fetch('/api/device', {
+  addDeviceButton.disabled = true;
+  addDeviceButton.textContent = '登録中...';
+
+  try{
+    const res = await fetch('/api/device', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({name})
-  });
+    });
 
-  const result = await res.json();
-  if(!res.ok){
-    showMessage(`登録エラー:${result.message || 不明なエラー}`, 'error');
-    return;
+    const result = await res.json();
+    if(!res.ok){
+      showMessage(`登録エラー:${result.message || 不明なエラー}`, 'error');
+      return;
+    }
+
+    showMessage(`機器登録に成功しました:${result.name}`, 'success');
+    newDeviceNameInput.value = '';
+    loadMasterData();
+  }catch(err){
+    console.error('登録エラー:', err);
+    showMessage('機器登録に失敗しました', 'error');
+  }finally{
+    addDeviceButton.disabled = false;
+    addDeviceButton.textContent = '登録中';
   }
-
-  showMessage(`機器登録に成功しました:${result.name}`, 'success');
-  newDeviceNameInput.value = '';
-  loadMasterData();
 }
 document.getElementById('registerDevice').addEventListener('click',addDevice);
 
