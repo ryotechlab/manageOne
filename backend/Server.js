@@ -14,7 +14,7 @@ const userRoutes = require('./routes/user');
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(frontFilePath));//静的ファイルの提供
+app.use(express.static(frontFilePath));
 
 //APIのルーティングマウント
 app.use('/api/borrow', borrowRoutes);

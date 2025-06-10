@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { db, getAllBorrows, postBorrows, deleteBorrow} = require('../../db/database');
+const db = require('../../db/database');
 
 const router = express.Router();
 
@@ -10,41 +10,38 @@ const isEmpty = value => typeof value !== 'string' || value.trim() === '';
 
 //一覧取得
 router.get('/',(req,res) => {
-  getAllBorrows((err, rows) => {
-    if(err){
-      res.status(500).json({ err: 'データベースエラー' });
-    }else{
-      res.status(200).json(rows);
-    }
-  });
+  try{
+    const borrows = db.getAllBorrows();
+    res.status(200).json(borrows);
+  }catch(err){
+    res.status(err.status || 500).json({ error: err.message || '内部エラー' });
+  }
 });
 
 //貸出登録
 router.post('/',(req,res) => {
-  const { deviceName, userName, date} = req.body;
+  try{
+    const { deviceName, userName, date} = req.body;
 
-  if([deviceName, userName, date].some(isEmpty)){
-    return res.status(400).json({ message: '全ての項目を正しく選択・入力して下さい' });
-  }
-
-  postBorrows(deviceName, userName, date, (err, result) => {
-    if (err) {
-      return res.status(err.status).json({ error: err.message });
+    if([deviceName, userName, date].some(isEmpty)){
+      return res.status(400).json({ message: '全ての項目を正しく選択・入力して下さい' });
     }
-    
-    res.status(201).json({ id: result.id });
-  });
+
+    const result = db.postBorrows(deviceName, userName, date);
+    res.status(201).json(result);
+  }catch(err){
+    res.status(err.status || 500).json({ error: err.message || '内部エラー' });
+  }
 });
 
 //削除(DELETE)
 router.delete('/:id',(req,res) => {
-  const id = req.params.id;
-  deleteBorrow(id, (err) => {
-    if(err){
-      return res.status(err.status).json({ err: err.massage });
-    }
-    res.status(200).json({ message: '削除に成功しました' });
-  });
+  try{
+    db.deleteBorrow(Number(req.params.id));
+    res.status(204).end();
+  }catch(err){
+    res.status(err.status || 500).json({ error: err.message || '内部エラー' });
+  }
 });
 
 module.exports = router;
