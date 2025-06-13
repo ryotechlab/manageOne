@@ -195,6 +195,7 @@ async function addUser(){
     loadMasterData();
   }catch(err){
     console.error('登録エラー:', err);
+    newUserNameInput.value = '';
     showMessage('ユーザー登録に失敗しました', 'error');
   }finally{
     addUserButton.disabled = false;
@@ -232,6 +233,7 @@ async function addDevice(){
     loadMasterData();
   }catch(err){
     console.error('登録エラー:', err);
+    newDeviceNameInput.value = '';
     showMessage('機器登録に失敗しました', 'error');
   }finally{
     addDeviceButton.disabled = false;

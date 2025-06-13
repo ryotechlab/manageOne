@@ -29,7 +29,7 @@ function getAllBorrows(){
     return db.prepare(sql).all();
   }catch(err){
     console.error('getAllBorrowsエラー:', err);
-    throw { status: 500, massage: '貸出一覧の取得に失敗しました' };
+    throw { status: 500, message: '貸出一覧の取得に失敗しました' };
   }
 }
 
@@ -92,12 +92,20 @@ function getAllUsers(){
 //ユーザー登録
 function postUsers(userName){
   try{
+    const checkSql = 'SELECT id FROM users WHERE name = ?';
+    const existingUser = db.prepare(checkSql).get(userName);
+
+    if(existingUser){
+      throw { status: 409, message: 'このユーザーは既に存在しています' };
+    }
+
     const sql = 'INSERT INTO users (name) VALUES (?)';
     const info = db.prepare(sql).run(userName);
 
     return { status: 201, id: info.lastInsertRowid, name: userName};
   }catch(err){
     console.error('postUsers エラー:', err);
+    if(err.status) throw err;
     throw { status: 500, message: 'ユーザー登録に失敗しました' };
   }
 }
@@ -114,14 +122,22 @@ function getAllDevices(){
 }
 
 //機器登録
-function postDevices(deviceName, ){
+function postDevices(deviceName){
   try{
+    const checkSql = 'SELECT id FROM devices WHERE name = ?'
+    const existingDevice = db.prepare(checkSql).get(deviceName);
+
+    if(existingDevice){
+      throw { status: 409, message: 'この機器は既に存在しています' };
+    }
+
     const sql = 'INSERT INTO devices (name) VALUES (?)';
     const info = db.prepare(sql).run(deviceName);
 
     return { status: 201, id: info.lastInsertRowid, name: deviceName};
   }catch(err){
     console.error('postDevices エラー:', err);
+    if(err.status) throw err;
     throw { status: 500, message: '機器登録に失敗しました' };
   }
 }
