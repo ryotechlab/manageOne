@@ -3,6 +3,22 @@ const path = require('path');
 
 const dbPath = path.join(__dirname, 'manageOne.db');
 
+//ユーザー名・機器名のバリデーションチェック関数
+function validateName(name, label = '名称'){
+  if(typeof name !== 'string' || name.trim() === ''){
+    throw { status: 400, message: `${label}は必須です`};
+  }
+  //必要に応じて禁止文字のバリデーションも追加
+}
+
+//日付のバリデーションチェック関数
+function validateDate(date){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
+    throw { status: 400, message: '日付はYYYY-MM-DD形式で入力してください' };
+  }
+  //必要に応じて未来日付・過去日付の制限も追加可能
+}
+
 //DB接続
 let db;
 try{
@@ -49,6 +65,8 @@ function postBorrows(deviceName, userName, date){
       throw { status: 400, message: '機器が見つかりません' }
     }
 
+    validateDate(date);
+
     const insertSql = 'INSERT INTO borrowings (user_id, device_id, date) VALUES (?, ?, ?)';
     const info = db.prepare(insertSql).run(user.id,device.id,date);
 
@@ -92,6 +110,8 @@ function getAllUsers(){
 //ユーザー登録
 function postUsers(userName){
   try{
+    validateName(userName, 'ユーザー名');
+
     const checkSql = 'SELECT id FROM users WHERE name = ?';
     const existingUser = db.prepare(checkSql).get(userName);
 
@@ -124,6 +144,8 @@ function getAllDevices(){
 //機器登録
 function postDevices(deviceName){
   try{
+    validateName(deviceName, '機器名');
+
     const checkSql = 'SELECT id FROM devices WHERE name = ?'
     const existingDevice = db.prepare(checkSql).get(deviceName);
 
