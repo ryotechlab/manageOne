@@ -9,7 +9,6 @@ const frontFilePath = path.join(__dirname,'..','frontend');
 
 const borrowRoutes = require('./routes/borrow');
 const deviceRoutes = require('./routes/device');
-const returnRoutes = require('./routes/return');
 const userRoutes = require('./routes/user');
 
 app.use(cors());
@@ -19,13 +18,12 @@ app.use(express.static(frontFilePath));
 //APIのルーティングマウント
 app.use('/api/borrow', borrowRoutes);
 app.use('/api/device', deviceRoutes);
-app.use('/api/return', returnRoutes);
 app.use('/api/user', userRoutes);
 
 //404ハンドラ
 app.use((req,res,next) => {
   res.status(404).json({ error: 'Not Found' });
-})
+});
 
 //APIのエラーハンドリング
 app.use((err,req,res,next) => {

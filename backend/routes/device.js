@@ -1,26 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../db/database');
-const asyncHandler = require('../../utils/asyncHandler');
-
-const isEmpty = value => value === null || typeof value !== 'string' || value.trim() === '';
+const asyncHandler = require('../middlewares/asyncHandler');
+const deviceController = require('../controllers/deviceController');
 
 //GET /api/device → 一覧を取得
-router.get('/', asyncHandler((req,res) => {
-  const devices = db.getAllDevices();
-  res.status(200).json(devices);
-}));
+router.get('/', asyncHandler(deviceController.getDevices));
 
 //POST /api/device → 機器を登録
-router.post('/', asyncHandler((req,res) => {
-  const { name } = req.body;
-
-  if(isEmpty(name)){
-  return res.status(400).json({ message: '正しく入力して下さい' });
-  }
-
-  const result = db.postDevices(name);
-  res.status(201).json(result);
-}));
+router.post('/', asyncHandler(deviceController.createDevice));
 
 module.exports = router;

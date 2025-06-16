@@ -237,7 +237,7 @@ async function addDevice(){
     showMessage('機器登録に失敗しました', 'error');
   }finally{
     addDeviceButton.disabled = false;
-    addDeviceButton.textContent = '登録中';
+    addDeviceButton.textContent = '登録';
   }
 }
 document.getElementById('registerDevice').addEventListener('click',addDevice);
