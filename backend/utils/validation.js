@@ -17,8 +17,24 @@ function validateDate(date){
 //空・スペースのみを検査
 const isEmpty = value => typeof value !== 'string' || value.trim() === '';
 
+//パスワードのバリデーション関数
+function validatePassword(password){
+  const maxLength = 20;
+  const minLength = 5;
+  if(typeof password !== 'string' || password.trim() === ''){
+    throw { status: 400, message: 'パスワードの入力は必須です' };
+  }
+  if(password.length <= minLength){
+    throw { status: 400, message: 'パスワードは8文字以上にして下さい' };
+  }
+  if(password.length > maxLength){
+    throw { status: 400, message: 'パスワードは12文字以内にして下さい' };
+  }
+}
+
 module.exports = {
   validateName,
   validateDate,
   isEmpty,
+  validatePassword,
 };

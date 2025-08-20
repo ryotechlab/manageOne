@@ -36,11 +36,21 @@
 
   <h3>ユーザー追加</h3>
   <input type="text" id="newUserName" placeholder="新規ユーザー名">
+  <input type="text" id="newUserPassword" placeholder="新規パスワード">
   <button id="registerUser">登録</button>
 
   <h3>機器追加</h3>
   <input type="text" id="newDeviceName" placeholder="新規機器名">
   <button id="registerDevice">登録</button>
+
+  <h3>ログイン</h3>
+  <form id="loginForm">
+    <input type="text" id="loginName" placeholder="ユーザー名" required>
+    <input type="text" id="loginPassword" placeholder="パスワード" required>
+    <button type="submit">ログイン</button>
+    <button type="button" id="logoutBtn">ログアウト</button>
+  </form>
+  <div id="loginMessage"></div>
 
   <script src="app.js"></script>
 </body>

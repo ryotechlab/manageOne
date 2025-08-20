@@ -169,10 +169,15 @@ async function deleteBorrow(id){
 //ユーザー登録
 async function addUser(){
   const newUserNameInput = document.getElementById('newUserName');
+  const newUserPassword = document.getElementById('newUserPassword');
   const addUserButton = document.getElementById('registerUser');
   const name = newUserNameInput.value;
+  const password = newUserPassword.value;
+
+  const token = localStorage.getItem('token');
 
   if(isEmpty(name)) return showMessage('ユーザー名を正しく入力して下さい', 'error');
+  if(isEmpty(password)) return showMessage('パスワードを正しく入力して下さい', 'error');
 
   addUserButton.disabled = true;
   addUserButton.textContent = '登録中...';
@@ -180,8 +185,11 @@ async function addUser(){
   try{
     const res = await fetch('/api/user', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({name})
+    headers: {
+       'Content-Type': 'application/json',
+       'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({name,password})
     });
 
     const result = await res.json();
@@ -192,10 +200,12 @@ async function addUser(){
 
     showMessage(`ユーザー登録に成功しました:${result.name}`,'success');
     newUserNameInput.value = '';
+    newUserPassword.value = '';
     loadMasterData();
   }catch(err){
     console.error('登録エラー:', err);
     newUserNameInput.value = '';
+    newUserPassword.value = '';
     showMessage('ユーザー登録に失敗しました', 'error');
   }finally{
     addUserButton.disabled = false;
@@ -241,6 +251,56 @@ async function addDevice(){
   }
 }
 document.getElementById('registerDevice').addEventListener('click',addDevice);
+
+//ログイン処理
+async function handleLogin(e){
+  e.preventDefault();
+  const loginNameInput = document.getElementById('loginName');
+  const name = loginNameInput.value;
+  const loginPasswordInput = document.getElementById('loginPassword');
+  const password = loginPasswordInput.value;
+  const loginMessage = document.getElementById('loginMessage');
+
+  try{
+    const res = await fetch('/api/user/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, password })
+    });
+    const result = await res.json();
+
+    if(!res.ok) {
+      loginMessage.textContent = result.message || 'ログイン失敗';
+      loginMessage.style.color = 'red';
+      return;
+    }
+
+    //トークンをlocalStorageに保存
+    localStorage.setItem('token', result.token);
+    loginMessage.textContent = 'ログイン成功';
+    loginMessage.style.color = 'green';
+
+    loginNameInput.value = '';
+    loginPasswordInput.value = '';
+    loadMasterData();
+
+  }catch(err){
+    loginMessage.textContent = '通信エラー';
+    loginMessage.style.color = 'red';
+    loginNameInput.value = "";
+    loginPasswordInput.value = "";
+    loadMasterData();
+  }
+}
+document.getElementById('loginForm').addEventListener('submit',handleLogin);
+
+//ログアウト処理
+function handleLogout(){
+  localStorage.removeItem('token');
+  alert('ログアウトしました');
+  //必要なら画面リロードやUI更新
+}
+document.getElementById('logoutBtn').addEventListener('click',handleLogout);
 
 //ページ読込時に一覧を取得
 window.addEventListener('DOMContentLoaded', () => {
